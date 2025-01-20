@@ -1,0 +1,26 @@
+ManifestFileVersion: 0
+CRC: 3370720083
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: f2692c53325433a4ba98d68940680ea7
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 2b1ce75a2ebda8d1d4c67108a748755c
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: f2692c53325433a4ba98d68940680ea7
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 200701affb7f48c7aa68562d26bd6a87, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Core/Bundles/main_screen/MainScreenBundleAsset.asset
+Dependencies: []
