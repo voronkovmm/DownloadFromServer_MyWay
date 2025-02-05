@@ -1,49 +1,88 @@
-﻿using System;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using VContainer;
 
 namespace Core.Features.UI.Screens.MainScreen
 {
-    public class MainScreen : MonoBehaviour
+    public interface IMainScreen
     {
-        public event Action<bool> OnVisibleChanged;
-        public event Action OnClickIncreaseCounter;
-        public event Action OnClickUpdateContent;
+        string CounterLabel { set; }
+        string WelcomeLabel { set; }
+        Sprite IncreaseCounterButtonSprite { set; }
+        void SetVisible(bool value);
+    }
+    
+    public class MainScreen : MonoBehaviour, IMainScreen
+    {
+        private IMainScreenPresenter mainScreenPresenter;
         
         [SerializeField] private Button increaseCounterButton;
         [SerializeField] private TMP_Text counterLabel;
         [SerializeField] private TMP_Text welcomeLabel;
 
+        [Inject]
+        public void Construct(IMainScreenPresenter mainScreenPresenter)
+        {
+            this.mainScreenPresenter = mainScreenPresenter;
+            mainScreenPresenter.SetView(this);
+        }
+
         public string CounterLabel
         {
             set => counterLabel.text = value;
         }
-
+        
         public string WelcomeLabel
         {
             set => welcomeLabel.text = value;
         }
-
-        public Sprite IncreaseCounterSprite
+        
+        public Sprite IncreaseCounterButtonSprite
         {
             set => increaseCounterButton.image.sprite = value;
+        }
+
+        private void OnEnable()
+        {
+            UpdateCounterLabel();
+            UpdateWelcomeLabel();
+            UpdateIncreaseCounterButtonSprite();
         }
 
         public void SetVisible(bool value)
         {
             gameObject.SetActive(value);
-            OnVisibleChanged?.Invoke(value);
+            mainScreenPresenter.VisibleChanged(value);
         }
+        
+        private void UpdateCounterLabel()
+        {
+            CounterLabel = mainScreenPresenter.CounterLabel;
+        }
+        
+        private void UpdateWelcomeLabel()
+        {
+            WelcomeLabel = mainScreenPresenter.WelcomeLabel;
+        }
+        
+        private void UpdateIncreaseCounterButtonSprite()
+        {
+            IncreaseCounterButtonSprite = mainScreenPresenter.IncreaseCounterButtonSprite;
+        }
+        
+        #region Events
 
         public void ClickIncreaseCounter()
         {
-            OnClickIncreaseCounter?.Invoke();
+            mainScreenPresenter.IncreaseCounter();
         }
 
         public void ClickUpdateContent()
         {
-            OnClickUpdateContent?.Invoke();
+            mainScreenPresenter.UpdateContent();
         }
+
+        #endregion
     }
 }

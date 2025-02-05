@@ -18,19 +18,19 @@ namespace Core.Scripts.SaveLoad
     public class SaveLoadService : IDisposable
     {
         private readonly ISaveLoad saveLoad;
-        private readonly GameManager gameManager;
+        private readonly IGameEvents gameEvents;
 
-        public SaveLoadService(ISaveLoad saveLoad, GameManager gameManager)
+        public SaveLoadService(ISaveLoad saveLoad, IGameEvents gameEvents)
         {
-            this.gameManager = gameManager;
+            this.gameEvents = gameEvents;
             this.saveLoad = saveLoad;
 
-            gameManager.OnApplicationQuitEvent += GameManager_ApplicationQuit;
+            gameEvents.OnApplicationQuitEvent += GameManager_ApplicationQuit;
         }
 
         public void Dispose()
         {
-            gameManager.OnApplicationQuitEvent -= GameManager_ApplicationQuit;
+            gameEvents.OnApplicationQuitEvent -= GameManager_ApplicationQuit;
         }
 
         public void Save()

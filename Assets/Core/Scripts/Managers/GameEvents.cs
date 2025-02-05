@@ -3,7 +3,12 @@ using UnityEngine;
 
 namespace Core.Scripts.Managers
 {
-    public class GameManager : MonoBehaviour
+    public interface IGameEvents
+    {
+        event Action OnApplicationQuitEvent;
+    }
+    
+    public class GameEvents : MonoBehaviour, IGameEvents
     {
         public event Action OnApplicationQuitEvent;
 

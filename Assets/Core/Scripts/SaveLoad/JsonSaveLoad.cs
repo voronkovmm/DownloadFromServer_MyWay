@@ -12,15 +12,19 @@ namespace Core.Scripts.SaveLoad
 {
     public class JsonSaveLoad : ISaveLoad, IInitializable
     {
-        [Inject] private IObjectResolver resolver;
-        
         private Dictionary<string, ISaveble> saves = new(20);
-
+        private IObjectResolver resolver;
         private JsonSerializerSettings settings = new()
         {
             TypeNameHandling = TypeNameHandling.Auto,
             Formatting = Formatting.Indented,
         };
+
+        [Inject]
+        public JsonSaveLoad(IObjectResolver resolver)
+        {
+            this.resolver = resolver;
+        }
 
         private string savePath => Path.Combine(Application.persistentDataPath, "save.json");
         

@@ -31,7 +31,7 @@ namespace Core.Scripts.MainScreen
 
         private void EntryPoint(IContainerBuilder builder)
         {
-            builder.RegisterEntryPoint<MainScreenEntryPoint>();
+            builder.RegisterEntryPoint<EntryPoint>();
         }
 
         private void Tools(IContainerBuilder builder)
@@ -51,12 +51,13 @@ namespace Core.Scripts.MainScreen
 
         private void Managers(IContainerBuilder builder)
         {
-            builder.RegisterComponentInHierarchy<MainScreenCanvasManager>();
+            builder.RegisterComponentInHierarchy<CanvasManager>();
 
-            var gameManagerGameObject = new GameObject("GameManager");
-            var gameManager = gameManagerGameObject.AddComponent<GameManager>();
+            var gameManagerGameObject = new GameObject("GameEvents");
+            var gameManager = gameManagerGameObject.AddComponent<GameEvents>();
             DontDestroyOnLoad(gameManagerGameObject);
-            builder.RegisterInstance(gameManager);
+            builder.RegisterInstance(gameManager)
+                .As<IGameEvents>();
         }
 
         private void MainScreen(IContainerBuilder builder)
@@ -67,7 +68,8 @@ namespace Core.Scripts.MainScreen
             builder.Register<MainScreenModel>(Lifetime.Scoped)
                 .AsImplementedInterfaces()
                 .AsSelf();
-            builder.RegisterComponentInHierarchy<Features.UI.Screens.MainScreen.MainScreen>();
+            builder.RegisterComponentInHierarchy<Features.UI.Screens.MainScreen.MainScreen>()
+                .As<IMainScreen>();
             builder.Register<MainScreenPresenter>(Lifetime.Scoped)
                 .AsImplementedInterfaces();
         }
@@ -75,7 +77,7 @@ namespace Core.Scripts.MainScreen
         private void LoadingScreen(IContainerBuilder builder)
         {
             builder.Register<LoadingScreenInitializer>(Lifetime.Scoped);
-            builder.Register<LoadingScreenPresenter>(Lifetime.Scoped)
+            builder.Register<LoadingScreenAdapter>(Lifetime.Scoped)
                 .WithParameter(loadingScreen)
                 .AsImplementedInterfaces();
         }

@@ -1,50 +1,53 @@
 ﻿using System;
 using System.Threading;
-using Core.Scripts.AssetBundles;
 using Core.Scripts.MainScreen.Models;
 using Cysharp.Threading.Tasks;
-using VContainer.Unity;
+using UnityEngine;
 
 namespace Core.Features.UI.Screens.MainScreen
 {
-    public class MainScreenPresenter : IDisposable, IInitializable
+    public interface IMainScreenPresenter
     {
-        private MainScreen view;
+        string CounterLabel { get; }
+        string WelcomeLabel { get; }
+        Sprite IncreaseCounterButtonSprite { get; }
+        void SetView(IMainScreen view);
+        void IncreaseCounter();
+        void UpdateContent();
+        void VisibleChanged(bool isVisible);
+    }
+    
+    public class MainScreenPresenter : IMainScreenPresenter, IDisposable
+    {
+        private IMainScreen view;
         private MainScreenModel model;
         private CancellationTokenSource tokenSource = new();
 
-        public MainScreenPresenter(
-            MainScreen view, 
-            MainScreenModel modelModel)
+        public MainScreenPresenter(MainScreenModel modelModel)
         {
-            this.view = view;
             this.model = modelModel;
         }
 
-        public void Initialize()
-        {
-            view.OnVisibleChanged += View_VisibleChanged;
-        }
+        public string CounterLabel => model.Counter.ToString();
+        public string WelcomeLabel => model.WelcomeLabel;
+        public Sprite IncreaseCounterButtonSprite => model.BundleAsset.IncreaseCounterButton;
 
         public void Dispose()
         {
-            tokenSource.Cancel();
-            view.OnVisibleChanged -= View_VisibleChanged;
+            if(tokenSource is { IsCancellationRequested: false })
+                tokenSource.Cancel();
+            
             Unsubscribe();
         }
         
         private void Subscribe()
         {
-            view.OnClickUpdateContent += View_UpdateContent;
-            view.OnClickIncreaseCounter += View_IncreaseCounter;
             model.OnCounterChanged += Model_CounterChanged;
             model.OnContentChanged += Model_ContentChanged;
         }
 
         private void Unsubscribe()
         {
-            view.OnClickUpdateContent -= View_UpdateContent;
-            view.OnClickIncreaseCounter -= View_IncreaseCounter;
             model.OnCounterChanged -= Model_CounterChanged;
             model.OnContentChanged -= Model_ContentChanged;
         }
@@ -57,16 +60,21 @@ namespace Core.Features.UI.Screens.MainScreen
                 return;
             }
             
-            view.CounterLabel = model.Counter.ToString();
-            view.WelcomeLabel = model.WelcomeLabel;
-            view.IncreaseCounterSprite = model.BundleAsset.IncreaseCounterButton;
+            view.CounterLabel = CounterLabel;
+            view.WelcomeLabel = WelcomeLabel;
+            view.IncreaseCounterButtonSprite = IncreaseCounterButtonSprite;
         }
 
         #region ViewCallbacks
 
-        private void View_VisibleChanged(bool visibleValue)
+        public void SetView(IMainScreen view)
         {
-            if (visibleValue)
+            this.view = view;
+        }
+
+        public void VisibleChanged(bool isVisible)
+        {
+            if (isVisible)
             {
                 Subscribe();
                 RefreshView();
@@ -77,17 +85,17 @@ namespace Core.Features.UI.Screens.MainScreen
             }
         }
 
-        private void View_IncreaseCounter()
+        public void IncreaseCounter()
         {
             model.IncreaseCounter();
         }
         
-        private void View_UpdateContent()
+        public void UpdateContent()
         {
             if (model.IsLoadContentProcessing)
                 return;
             
-            model.UpdateContentAsync(tokenSource.Token).Forget();
+            model.UpdateContentAsync(tokenSource.Token).Forget();   
         }
 
         #endregion
@@ -102,7 +110,7 @@ namespace Core.Features.UI.Screens.MainScreen
         private void Model_ContentChanged()
         {
             view.WelcomeLabel = model.WelcomeLabel;
-            view.IncreaseCounterSprite = model.BundleAsset.IncreaseCounterButton;
+            view.IncreaseCounterButtonSprite = model.BundleAsset.IncreaseCounterButton;
         }
 
         #endregion

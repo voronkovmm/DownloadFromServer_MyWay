@@ -2,7 +2,7 @@
 
 namespace Core.Scripts.Managers
 {
-    public class MainScreenCanvasManager : MonoBehaviour
+    public class CanvasManager : MonoBehaviour
     {
         [field: SerializeField] public Canvas LoadinScreenCanvas { get; private set; }
         [field: SerializeField] public Canvas MainScreenCanvas { get; private set; }

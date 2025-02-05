@@ -6,14 +6,14 @@ using VContainer.Unity;
 
 namespace Features.UI.Screens.LoadingScreen
 {
-    public class LoadingScreenPresenter : IDisposable, IInitializable
+    public class LoadingScreenAdapter : IDisposable, IInitializable
     {
         private LoadingScreen view;
         private LoadingScreenInitializer loadingScreenInitializer;
-        private MainScreenCanvasManager canvasManager;
+        private CanvasManager canvasManager;
 
         [Inject]
-        public LoadingScreenPresenter(LoadingScreen view, LoadingScreenInitializer loadingScreenInitializer, MainScreenCanvasManager canvasManager)
+        public LoadingScreenAdapter(LoadingScreen view, LoadingScreenInitializer loadingScreenInitializer, CanvasManager canvasManager)
         {
             this.canvasManager = canvasManager;
             this.loadingScreenInitializer = loadingScreenInitializer;
@@ -30,6 +30,7 @@ namespace Features.UI.Screens.LoadingScreen
         public void Dispose()
         {
             loadingScreenInitializer.OnProgressChanged -= LoadingScreenInitializerProgressChanged;
+            loadingScreenInitializer.OnLoadingComplete -= LoadingScreenInitializerLoadingComplete;
         }
 
         private void LoadingScreenInitializerProgressChanged(float progress)
