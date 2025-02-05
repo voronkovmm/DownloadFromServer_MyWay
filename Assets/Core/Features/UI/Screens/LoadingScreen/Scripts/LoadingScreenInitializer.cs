@@ -13,7 +13,6 @@ namespace Core.Scripts.MainScreen
         public event Action OnLoadingComplete;
 
         private float progress;
-        private CancellationTokenSource tokenSource = new();
         private MainScreenModel mainScreenModel;
 
         [Inject]
@@ -32,20 +31,29 @@ namespace Core.Scripts.MainScreen
             }
         }
         
-        public async UniTask LoadContentAsync()
+        public async UniTask LoadContentAsync(CancellationToken token)
         {
             Progress = 0;
 
-            await mainScreenModel.LoadContentAsync(tokenSource.Token);
-            
-            // симуляция долгой загрузки
-            while (Progress < 1f)
+            try
             {
-                await UniTask.Delay(50);
-                Progress = Mathf.Min(1, Progress + 0.03f);
+                await mainScreenModel.LoadContentAsync(token);
+             
+                // симуляция долгой загрузки
+                while (Progress < 1f)
+                {
+                    token.ThrowIfCancellationRequested();
+
+                    await UniTask.Delay(50, cancellationToken: token);
+                    Progress = Mathf.Min(1, Progress + 0.03f);
+                }
+                
+                OnLoadingComplete?.Invoke();
             }
-            
-            OnLoadingComplete?.Invoke();
+            catch (OperationCanceledException)
+            {
+                OnLoadingComplete?.Invoke();
+            }
         }
     }
 }
